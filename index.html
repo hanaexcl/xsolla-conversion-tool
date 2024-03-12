@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xsolla 轉換工具</title>
+</head>
+<body>
+<label for="inputText"></label><textarea id="inputText" rows="4" cols="50"></textarea><br>
+<button onclick="pasteFromClipboard()">貼上</button>
+<button onclick="generateUrl()">轉換</button>
+<br>
+<a id="outputUrl" target="_blank"></a>
+
+<script>
+  function pasteFromClipboard() {
+    navigator.clipboard.readText().then(text => {
+      document.getElementById('inputText').value = text;
+      generateUrl();
+    });
+  }
+
+  function generateUrl() {
+    document.getElementById('outputUrl').href = '';
+    document.getElementById('outputUrl').textContent = '';
+
+    const inputText = document.getElementById('inputText').value;
+    const sign = inputText.match(/name="sign" value="(.+?)"/);
+    const url = inputText.match(/name="url" value="(.+?)"/);
+
+    if (sign === null || url === null) {
+      document.getElementById('outputUrl').href = '';
+      document.getElementById('outputUrl').textContent = '抓取失敗';
+      return;
+    }
+
+    const newUrl = 'https://secure.xsolla.com/pages/redirect?url=' + url[1] + '&sign=' + sign[1];
+    document.getElementById('outputUrl').href = newUrl;
+    document.getElementById('outputUrl').textContent = newUrl;
+  }
+</script>
+</body>
+</html>
