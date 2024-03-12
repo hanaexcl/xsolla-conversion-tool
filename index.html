@@ -1,43 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>xsolla 轉換工具</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="小工具">
+    <title>xsolla 轉換工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.3/dist/full.min.css" rel="stylesheet" type="text/css"/>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-<label for="inputText"></label><textarea id="inputText" rows="4" cols="50"></textarea><br>
-<button onclick="pasteFromClipboard()">貼上</button>
-<button onclick="generateUrl()">轉換</button>
-<br>
-<a id="outputUrl" target="_blank"></a>
-
+<noscript>You need to enable JavaScript to run this app.</noscript>
+<div id="root">
+    <div class="hero min-h-screen bg-base-200">
+        <div class="card card-compact w-96 bg-base-100 shadow-xl">
+            <div class="card-body">
+                <div class="form-control w-full">
+                    <textarea class="textarea textarea-bordered" placeholder="網頁原始碼" rows="4"
+                              id="inputText"></textarea>
+                </div>
+                <button class="btn" onclick="pasteFromClipboard()">貼上</button>
+                <button class="btn" onclick="generateUrl()">轉換</button>
+                <div class="divider">結果</div>
+                <button id="navigateUrlBtn" class="btn" onclick="NavigateUrl()" disabled>前往</button>
+                <button id="generateUrlBtn" class="btn" onclick="copyToClipboard()" disabled>複製</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
 <script>
-  function pasteFromClipboard() {
-    navigator.clipboard.readText().then(text => {
-      document.getElementById('inputText').value = text;
-      generateUrl();
-    });
-  }
+    let openUrl = '';
 
-  function generateUrl() {
-    document.getElementById('outputUrl').href = '';
-    document.getElementById('outputUrl').textContent = '';
-
-    const inputText = document.getElementById('inputText').value;
-    const sign = inputText.match(/name="sign" value="(.+?)"/);
-    const url = inputText.match(/name="url" value="(.+?)"/);
-
-    if (sign === null || url === null) {
-      document.getElementById('outputUrl').href = '';
-      document.getElementById('outputUrl').textContent = '抓取失敗';
-      return;
+    function pasteFromClipboard() {
+        navigator.clipboard.readText().then(text => {
+            document.getElementById('inputText').value = text;
+            generateUrl();
+        });
     }
 
-    const newUrl = 'https://secure.xsolla.com/pages/redirect?url=' + url[1] + '&sign=' + sign[1];
-    document.getElementById('outputUrl').href = newUrl;
-    document.getElementById('outputUrl').textContent = newUrl;
-  }
+    function copyToClipboard() {
+        navigator.clipboard.writeText(openUrl);
+    }
+
+    function generateUrl() {
+        openUrl = "";
+        document.getElementById('navigateUrlBtn').disabled = true;
+        document.getElementById('generateUrlBtn').disabled = true;
+
+        const inputText = document.getElementById('inputText').value;
+        const sign = inputText.match(/name="sign" value="(.+?)"/);
+        const url = inputText.match(/name="url" value="(.+?)"/);
+
+        if (sign === null || url === null) {
+            return;
+        }
+
+        openUrl = 'https://secure.xsolla.com/pages/redirect?url=' + url[1] + '&sign=' + sign[1];
+        document.getElementById('navigateUrlBtn').disabled = false;
+        document.getElementById('generateUrlBtn').disabled = false;
+    }
+
+    function NavigateUrl() {
+        window.open(openUrl);
+    }
 </script>
-</body>
 </html>
